@@ -1,1 +1,11 @@
-Toms project!
+My program will take as input two sets of points in 2D. It will then walk through the steps of the linear time ham sandwidth cut algorithm and show the final ham sandwich cut.
+
+The program will be a java applet so you run it by going to the webpage and loading the java applet.
+
+The basic algorithm is to first convert the problem into a different problem using the duality transform. This creates hyperplanes and we wish to find a point which has half of the hyperplanes of each set above and below it.
+
+Now consider the median levels for each set of hyperplanes (a median level is for each given x value the y value such that half of the hyperplanes are above and below, assuming an odd number of hyperplanes. We want to find an intersection of these median levels and that will be the point with half of the hyperlanes of each set above and below it.
+
+It is simple to prove that these median levels will intersect. The hard part of the algorithm is to take these lines and in linear time remove at least one quarter of them as candidates for their vertices being on the ham sandwidth cut (with an odd number of hyperplanes the cut will be a point on a line from each set).
+
+At this point I understand the algorithm for throwing out one quarter of the lines, but I still don't understand the proof of why it is correct.
