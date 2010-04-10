@@ -1,80 +1,104 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-
-	<title>theycallhimtom/456-Project @ GitHub</title>
+	<head>
+	        <!-- charset must remain utf-8 to be handled properly by Processing -->
+		<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+		
+		<title>Input : Built with Processing</title>
+		
+		<style type="text/css">
+		/* <![CDATA[ */
 	
-	<style type="text/css">
 		body {
-  		margin-top: 1.0em;
-  		background-color: #78f691;
-		  font-family: "Helvetica,Arial,FreeSans";
-  		color: #000000;
-    }
-    #container {
-      margin: 0 auto;
-      width: 700px;
-    }
-		h1 { font-size: 3.8em; color: #87096e; margin-bottom: 3px; }
-		h1 .small { font-size: 0.4em; }
-		h1 a { text-decoration: none }
-		h2 { font-size: 1.5em; color: #87096e; }
-    h3 { text-align: center; color: #87096e; }
-    a { color: #87096e; }
-    .description { font-size: 1.2em; margin-bottom: 30px; margin-top: 30px; font-style: italic;}
-    .download { float: right; }
-		pre { background: #000; color: #fff; padding: 15px;}
-    hr { border: 0; width: 80%; border-bottom: 1px solid #aaa}
-    .footer { text-align:center; padding-top:30px; font-style: italic; }
-	</style>
+  		  margin: 60px 0px 0px 55px;
+		  font-family: verdana, geneva, arial, helvetica, sans-serif; 
+		  font-size: 11px; 
+		  background-color: #ddddcc; 
+		  text-decoration: none; 
+		  font-weight: normal; 
+		  line-height: normal; 
+		}
+		 
+		a          { color: #3399cc; }
+		a:link     { color: #3399cc; text-decoration: underline; }
+		a:visited  { color: #3399cc; text-decoration: underline; }
+		a:active   { color: #3399cc; text-decoration: underline; }
+		a:hover    { color: #3399cc; text-decoration: underline; }
 	
-</head>
-
-<body>
-  <a href="http://github.com/theycallhimtom/456-Project"><img style="position: absolute; top: 0; right: 0; border: 0;" src="http://s3.amazonaws.com/github/ribbons/forkme_right_darkblue_121621.png" alt="Fork me on GitHub" /></a>
-
-  <div id="container">
-
-    <div class="download">
-      <a href="http://github.com/theycallhimtom/456-Project/zipball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/zip.png"></a>
-      <a href="http://github.com/theycallhimtom/456-Project/tarball/master">
-        <img border="0" width="90" src="http://github.com/images/modules/download/tar.png"></a>
-    </div>
-
-    <h1><a href="http://github.com/theycallhimtom/456-Project">456-Project</a>
-      <span class="small">by <a href="http://github.com/theycallhimtom">theycallhimtom</a></span></h1>
-
-    <div class="description">
-      
-    </div>
-
-    <h2>Authors</h2>
-<p>Tom Conerly (theycallhimtom@gmail.com)<br/><br/>      </p>
-<h2>Contact</h2>
-<p> (theycallhimtom@gmail.com)<br/>      </p>
-
-
-    <h2>Download</h2>
-    <p>
-      You can download this project in either
-      <a href="http://github.com/theycallhimtom/456-Project/zipball/master">zip</a> or
-      <a href="http://github.com/theycallhimtom/456-Project/tarball/master">tar</a> formats.
-    </p>
-    <p>You can also clone the project with <a href="http://git-scm.com">Git</a>
-      by running:
-      <pre>$ git clone git://github.com/theycallhimtom/456-Project</pre>
-    </p>
-
-    <div class="footer">
-      get the source code on GitHub : <a href="http://github.com/theycallhimtom/456-Project">theycallhimtom/456-Project</a>
-    </div>
-
-  </div>
-
-  
-</body>
+		/* ]]> */
+		</style>
+	 
+	</head>
+	<body>
+		<div id="content">
+			<div id="Input_container">
+			
+			<!--[if !IE]> -->
+				<object classid="java:Input.class" 
+            			type="application/x-java-applet"
+            			archive="Input.jar"
+            			width="500" height="500"
+            			standby="Loading Processing software..." >
+            			
+					<param name="archive" value="Input.jar" />
+				
+					<param name="mayscript" value="true" />
+					<param name="scriptable" value="true" />
+				
+					<param name="image" value="loading.gif" />
+					<param name="boxmessage" value="Loading Processing software..." />
+					<param name="boxbgcolor" value="#FFFFFF" />
+				
+					<param name="test_string" value="outer" />
+			<!--<![endif]-->
+				
+				<object classid="clsid:CAFEEFAC-0016-0000-FFFF-ABCDEFFEDCBA" 
+						codebase="http://java.sun.com/update/1.5.0/jinstall-1_5_0_15-windows-i586.cab"
+						width="500" height="500"
+						standby="Loading Processing software..."  >
+						
+					<param name="code" value="Input" />
+					<param name="archive" value="Input.jar" />
+					
+					<param name="mayscript" value="true" />
+					<param name="scriptable" value="true" />
+					
+					<param name="image" value="loading.gif" />
+					<param name="boxmessage" value="Loading Processing software..." />
+					<param name="boxbgcolor" value="#FFFFFF" />
+					
+					<param name="test_string" value="inner" />
+					
+					<p>
+						<strong>
+							This browser does not have a Java Plug-in.
+							<br />
+							<a href="http://www.java.com/getjava" title="Download Java Plug-in">
+								Get the latest Java Plug-in here.
+							</a>
+						</strong>
+					</p>
+				
+				</object>
+				
+			<!--[if !IE]> -->
+				</object>
+			<!--<![endif]-->
+			
+			</div>
+			
+			<p>
+			
+			</p>
+			
+			<p>
+			Source code: <a href="Input.java">Input.java</a> 
+			</p>
+			
+			<p>
+			Built with <a href="http://processing.org" title="Processing.org">Processing</a>
+			</p>
+		</div>
+	</body>
 </html>
