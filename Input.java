@@ -23,12 +23,12 @@ public class Input extends PApplet{
 		red = new ArrayList<Point>();
 		blue = new ArrayList<Point>();
 		buttonsActive = true;
-		
+
 		trans = new AffineTransform();
 		trans.scale(10./WIDTH, 10./HEIGHT);
 		trans.translate(-WIDTH/2., -HEIGHT/2.);
-		
-		
+
+
 		if(DEBUGR != null){
 			for(int[] q:DEBUGR)
 				red.add(transform(new Point(q[0],q[1])));
@@ -50,15 +50,14 @@ public class Input extends PApplet{
 
 	int[][] DEBUGR = null;//{{640,379},{1026,521},{788,797},{512,755},{382,516},{705,375},{671,663},{368,674},{648,884},{977,569},{673,415},{547,370},};
 	int[][] DEBUGB = null;//{{635,210},{319,405},{462,659},{731,738},{539,498},{406,481},{667,480},{244,362},{619,474},{485,636},{850,779},{1111,572},{811,410},{555,425},{361,627},};
-	
+
 	public enum Mode {INPUT,RUNNING,DONE};
 	Mode mode = Mode.INPUT;
 
 	AffineTransform trans;
-	
+
 	public void draw(){
-		
-		
+
 		if(mode == Mode.INPUT)
 		{
 			for(Point r:red)
@@ -83,17 +82,17 @@ public class Input extends PApplet{
 				left = new Line(transform(new Point(3,0)),transform(new Point(3,1)));
 			else
 				left = new Line(lx,0,lx,1);
-			drawVertLine(left,0,0,0,4);
-			
+			drawVertLine(left,4,89,12,4);
+
 			Point pright = new Point(hx,0);
 			Point prightT = inverseTransform(pright);
 			Line right;
 			if(prightT.x >= WIDTH)
-				right = new Line(transform(new Point(WIDTH-3,0)),transform(new Point(WIDTH-3,1)));
+				right = new Line(transform(new Point(WIDTH-2,0)),transform(new Point(WIDTH-2,1)));
 			else
 				right = new Line(hx,0,hx,1);		
-			drawVertLine(right,0,0,0,4);
-			
+			drawVertLine(right,4,89,12,4);
+
 			if(drawMedian){
 				if(!alg.reversed){
 					drawMedian(alg.G1,alg.p1,252,188,104);
@@ -103,10 +102,39 @@ public class Input extends PApplet{
 					drawMedian(alg.G2,alg.p2,252,188,104);
 				}				
 			}
-			
+
 			if(alg.done)
-				drawPoint(alg.ans,0,0,0);			
-			
+				drawPoint(alg.ans,0,0,0);		
+
+			if(alg.drawTrap != null){
+				stroke(61,191,0);
+				strokeWeight(6);
+				fill(61,191,0);
+				
+				Line top = new Line(inverseTransform(alg.drawTrap[0].a),inverseTransform(alg.drawTrap[0].b));
+				Line bot = new Line(inverseTransform(alg.drawTrap[1].a),inverseTransform(alg.drawTrap[1].b));
+				if(top.a.x < 0){
+					Point p = top.interLine(new Line(0,0,0,1));
+					top = new Line(p,top.b);
+				}
+				if(top.b.x >= WIDTH){
+					Point p = top.interLine(new Line(WIDTH,0,WIDTH,1));
+					top = new Line(top.a,p);
+				}
+				if(bot.a.x < 0){
+					Point p = bot.interLine(new Line(0,0,0,1));
+					bot = new Line(p,bot.b);
+				}
+				if(bot.b.x >= WIDTH){
+					Point p = bot.interLine(new Line(WIDTH,0,WIDTH,1));
+					bot = new Line(bot.a,p);
+				}
+				line((int)top.a.x,(int)top.a.y,(int)top.b.x,(int)top.b.y);
+				line((int)bot.a.x,(int)bot.a.y,(int)bot.b.x,(int)bot.b.y);
+				line((int)bot.a.x,(int)bot.a.y,(int)top.a.x,(int)top.a.y);
+				line((int)top.b.x,(int)top.b.y,(int)bot.b.x,(int)bot.b.y);
+			}
+
 		}else{
 			for(Point r:red)
 				drawPoint(r,255,0,0);		
@@ -120,7 +148,7 @@ public class Input extends PApplet{
 		stroke(255,255,255);
 		strokeWeight(0);
 		rect(0,0,WIDTH,CONTROL);
-		
+
 		stroke(0,0,0);
 		strokeWeight(7);
 		fill(0,0,0);
@@ -130,7 +158,7 @@ public class Input extends PApplet{
 			drawText(alg.message,0,0,0,200,5);
 		}
 	}
-	
+
 	private void drawMedian(ArrayList<Line> L, int level,int r, int g, int b) {
 		if(L.size() == 0)
 			return;
@@ -186,7 +214,7 @@ public class Input extends PApplet{
 		Point laT = inverseTransform(la);
 		Point lbT = inverseTransform(lb);
 		line((int)laT.x,(int)laT.y,(int)lbT.x,(int)lbT.y);
-		
+
 	}
 	public void drawPoint(Point p, int r, int g, int b){
 		Point pT = inverseTransform(p);
@@ -213,16 +241,16 @@ public class Input extends PApplet{
 				return;
 
 			System.out.println("("+mouseX+","+mouseY+")");
-			
+
 			Point p = transform(new Point(mouseX,mouseY));
 			System.out.format("(%.3f,%.3f)\n",p.x,p.y);
 			if(drawingRed)
 				red.add(p);
 			else
 				blue.add(p);
-			
+
 		}else{
-			
+
 		}
 	}
 	private Point transform(Point p) {
@@ -275,7 +303,7 @@ public class Input extends PApplet{
 				System.out.print("{"+(int)q.x+","+(int)q.y+"},");
 			}
 			System.out.println("}");
-			
+
 			System.out.print("{");
 			for(Point p:blue){
 				Point q = inverseTransform(p);
@@ -291,7 +319,7 @@ public class Input extends PApplet{
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-			
+
 		}else if(mode == Mode.RUNNING && alg.done){
 			System.out.println("DONE!");
 			mode = Mode.DONE;
