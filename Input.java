@@ -4,10 +4,11 @@ import java.util.*;
 import java.awt.geom.*;
 
 public class Input extends PApplet{
-	final int WIDTH =1280,HEIGHT=1024;
+	final int WIDTH =800,HEIGHT=800;
+	final int CONTROL = 75;
 	public void setup(){
 		//don't use variables for this of export fails
-		size(1280,1024);
+		size(800,800);
 		background(255);
 		controlP5 = new ControlP5(this);
 		switchColor = controlP5.addButton("switchColor", 0, 95, 15, 65, 35);
@@ -26,6 +27,17 @@ public class Input extends PApplet{
 		trans = new AffineTransform();
 		trans.scale(10./WIDTH, 10./HEIGHT);
 		trans.translate(-WIDTH/2., -HEIGHT/2.);
+		
+		
+		if(DEBUGR != null){
+			for(int[] q:DEBUGR)
+				red.add(transform(new Point(q[0],q[1])));
+		}
+		if(DEBUGB != null){
+			for(int[] q:DEBUGB)
+				blue.add(transform(new Point(q[0],q[1])));
+		}
+		font = createFont("Times New Roman",16);
 	}
 	boolean buttonsActive = false;
 	ArrayList<Point> red;
@@ -36,12 +48,17 @@ public class Input extends PApplet{
 	boolean drawMedian = true;
 	Algo alg;
 
+	int[][] DEBUGR = null;//{{640,379},{1026,521},{788,797},{512,755},{382,516},{705,375},{671,663},{368,674},{648,884},{977,569},{673,415},{547,370},};
+	int[][] DEBUGB = null;//{{635,210},{319,405},{462,659},{731,738},{539,498},{406,481},{667,480},{244,362},{619,474},{485,636},{850,779},{1111,572},{811,410},{555,425},{361,627},};
+	
 	public enum Mode {INPUT,RUNNING,DONE};
 	Mode mode = Mode.INPUT;
 
 	AffineTransform trans;
 	
 	public void draw(){
+		
+		
 		if(mode == Mode.INPUT)
 		{
 			for(Point r:red)
@@ -97,6 +114,20 @@ public class Input extends PApplet{
 				drawPoint(b,0,0,255);
 			Line ans = Algo.pointToLine(alg.ans);
 			drawLine(ans,0,0,0,5);
+		}
+
+		fill(255,255,255);
+		stroke(255,255,255);
+		strokeWeight(0);
+		rect(0,0,WIDTH,CONTROL);
+		
+		stroke(0,0,0);
+		strokeWeight(7);
+		fill(0,0,0);
+		line(0,CONTROL,WIDTH,CONTROL);
+
+		if(alg != null){
+			drawText(alg.message,0,0,0,200,5);
 		}
 	}
 	
@@ -165,13 +196,20 @@ public class Input extends PApplet{
 		ellipseMode(CENTER);
 		ellipse((int)pT.x,(int)pT.y,10,10);
 	}
-
+	public void drawText(String s, int r, int g, int b, int x, int y){
+		textFont(font);
+		fill(r,g,b);
+		text(s,x,y,WIDTH-200,200);
+	}
+	PFont font;
 	boolean drawingRed = true;
 	public void mousePressed(){
 		if(mode == Mode.INPUT){
 			if(switchColor.isInside())
 				return;
 			if(start.isInside())
+				return;
+			if(mouseY <= CONTROL)
 				return;
 
 			System.out.println("("+mouseX+","+mouseY+")");
@@ -182,6 +220,7 @@ public class Input extends PApplet{
 				red.add(p);
 			else
 				blue.add(p);
+			
 		}else{
 			
 		}
@@ -229,6 +268,21 @@ public class Input extends PApplet{
 			alg = new Algo(red,blue);
 			clear();
 			buttonsActive = true;
+			System.out.println("****************************************");
+			System.out.print("{");
+			for(Point p:red){
+				Point q = inverseTransform(p);
+				System.out.print("{"+(int)q.x+","+(int)q.y+"},");
+			}
+			System.out.println("}");
+			
+			System.out.print("{");
+			for(Point p:blue){
+				Point q = inverseTransform(p);
+				System.out.print("{"+(int)q.x+","+(int)q.y+"},");
+			}
+			System.out.println("}");
+			System.out.println("****************************************");
 		}else if(mode == Mode.RUNNING && !alg.done){
 			System.out.println("STEP");
 			clear();

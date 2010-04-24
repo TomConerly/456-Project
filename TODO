@@ -17,4 +17,4 @@ Actual O(N) implementation
 	-Not doing O(N) selection algorithm
 	-For selecting region with few intersection points and odd intersection
 	 property I'm not sure that I'm doing in properly.
-	
+At the end show which side of the line a point is on if its close	
