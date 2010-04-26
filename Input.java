@@ -61,11 +61,11 @@ public class Input extends PApplet{
 	AffineTransform first;
 	long startTime;
 	long totalTime = 1000000000L;
-	
+
 
 
 	public void scale(){
-		
+
 		if(alg == null)
 			return;
 		System.out.println("SCALING!");
@@ -84,10 +84,12 @@ public class Input extends PApplet{
 				Point p = a.interLine(b);
 				if(p == null)
 					continue;
-				lx = Math.min(lx,p.x);
-				hx = Math.max(hx,p.x);
-				ly = Math.min(ly,p.y);
-				hy = Math.max(hy,p.y);
+				if(alg.lx <= p.x && p.x <= alg.hx){
+					lx = Math.min(lx,p.x);
+					hx = Math.max(hx,p.x);
+					ly = Math.min(ly,p.y);
+					hy = Math.max(hy,p.y);
+				}
 			}
 		}
 		System.out.println(lx+" "+hx+" "+ly+" "+hy);
@@ -99,22 +101,22 @@ public class Input extends PApplet{
 		double dy = hy-ly;
 		ly -= dy/3;
 		hy += dy/3;
-		
+
 		System.out.println(lx+" "+hx+" "+ly+" "+hy);
 		AffineTransform update = new AffineTransform();
 		update.preConcatenate(AffineTransform.getScaleInstance((hx-lx)/WIDTH,(hy-ly)/HEIGHT));
 		update.preConcatenate(AffineTransform.getTranslateInstance(lx, ly));	
-		
+
 		Point2D p = getCurrentTransform().transform(new Point2D.Double(400,400),null);
 		System.out.println("\t"+p.getX()+" "+p.getY());
 		p = getCurrentTransform().transform(new Point2D.Double(0,0),null);
 		System.out.println("\t"+p.getX()+" "+p.getY());
 		p = getCurrentTransform().transform(new Point2D.Double(800,800),null);
 		System.out.println("\t"+p.getX()+" "+p.getY());
-		
+
 		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
-		
-		
+
+
 		current = getCurrentTransform();
 		if(next == null)
 			first = update;
@@ -283,6 +285,7 @@ public class Input extends PApplet{
 		line((int)laT.x,(int)laT.y,(int)lbT.x,(int)lbT.y);		
 	}
 	public void drawLine(Line l,int r, int g, int b, int weight){
+		smooth();
 		stroke(r,g,b);
 		strokeWeight(weight);
 		fill(r,g,b);
@@ -423,7 +426,7 @@ public class Input extends PApplet{
 			current = original;
 			next = null;
 		}
-		
+
 		System.out.println("RETURN START");
 	}
 	public void clear(){
