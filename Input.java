@@ -49,8 +49,8 @@ public class Input extends PApplet{
 	boolean drawMedian = true;
 	Algo alg;
 
-	int[][] DEBUGR = null;//{{418,185},{138,440},{297,681},{628,525},{358,352},};
-	int[][] DEBUGB = null;//{{213,208},{576,306},{352,462},{158,336},{537,626},};
+	int[][] DEBUGR = null;//{{475,218},{469,625},{296,534},{338,399},{454,448},{682,383},};
+	int[][] DEBUGB = null;//{{408,448},{495,348},{290,276},{171,455},{571,513},};
 
 	public enum Mode {INPUT,RUNNING,DONE};
 	Mode mode = Mode.INPUT;
@@ -68,7 +68,7 @@ public class Input extends PApplet{
 
 		if(alg == null)
 			return;
-		System.out.println("SCALING!");
+//		System.out.println("SCALING!");
 		double lx = Double.MAX_VALUE;
 		double hx = Double.MIN_VALUE;
 		double ly = Double.MAX_VALUE;
@@ -92,7 +92,23 @@ public class Input extends PApplet{
 				}
 			}
 		}
-		System.out.println(lx+" "+hx+" "+ly+" "+hy);
+		if(alg.trap != null){
+			for(Line l:alg.trap){
+				if(l.a.x != -alg.HUGE && l.a.x != alg.HUGE){
+					lx = Math.min(lx,l.a.x);
+					hx = Math.max(hx,l.a.x);
+					ly = Math.min(ly,l.a.y);
+					hy = Math.max(hy,l.a.y);
+				}
+				if(l.b.x != -alg.HUGE && l.b.x != alg.HUGE){
+					lx = Math.min(lx,l.b.x);
+					hx = Math.max(hx,l.b.x);
+					ly = Math.min(ly,l.b.y);
+					hy = Math.max(hy,l.b.y);
+				}
+			}
+		}
+//		System.out.println(lx+" "+hx+" "+ly+" "+hy);
 		lx = Math.max(lx,alg.lx);
 		hx = Math.min(hx,alg.hx);
 		double dx = hx-lx;
@@ -102,19 +118,19 @@ public class Input extends PApplet{
 		ly -= dy/3;
 		hy += dy/3;
 
-		System.out.println(lx+" "+hx+" "+ly+" "+hy);
+//		System.out.println(lx+" "+hx+" "+ly+" "+hy);
 		AffineTransform update = new AffineTransform();
 		update.preConcatenate(AffineTransform.getScaleInstance((hx-lx)/WIDTH,(hy-ly)/HEIGHT));
 		update.preConcatenate(AffineTransform.getTranslateInstance(lx, ly));	
 
-		Point2D p = getCurrentTransform().transform(new Point2D.Double(400,400),null);
-		System.out.println("\t"+p.getX()+" "+p.getY());
-		p = getCurrentTransform().transform(new Point2D.Double(0,0),null);
-		System.out.println("\t"+p.getX()+" "+p.getY());
-		p = getCurrentTransform().transform(new Point2D.Double(800,800),null);
-		System.out.println("\t"+p.getX()+" "+p.getY());
-
-		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
+//		Point2D p = getCurrentTransform().transform(new Point2D.Double(400,400),null);
+//		System.out.println("\t"+p.getX()+" "+p.getY());
+//		p = getCurrentTransform().transform(new Point2D.Double(0,0),null);
+//		System.out.println("\t"+p.getX()+" "+p.getY());
+//		p = getCurrentTransform().transform(new Point2D.Double(800,800),null);
+//		System.out.println("\t"+p.getX()+" "+p.getY());
+//
+//		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
 
 
 		current = getCurrentTransform();
@@ -122,14 +138,14 @@ public class Input extends PApplet{
 			first = update;
 		next = update;
 		startTime = System.nanoTime();
-		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
-		p = getCurrentTransform().transform(new Point2D.Double(400,400),null);
-		System.out.println("\t"+p.getX()+" "+p.getY());
-		p = getCurrentTransform().transform(new Point2D.Double(0,0),null);
-		System.out.println("\t"+p.getX()+" "+p.getY());
-		p = getCurrentTransform().transform(new Point2D.Double(800,800),null);
-		System.out.println("\t"+p.getX()+" "+p.getY());
-		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
+//		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
+//		p = getCurrentTransform().transform(new Point2D.Double(400,400),null);
+//		System.out.println("\t"+p.getX()+" "+p.getY());
+//		p = getCurrentTransform().transform(new Point2D.Double(0,0),null);
+//		System.out.println("\t"+p.getX()+" "+p.getY());
+//		p = getCurrentTransform().transform(new Point2D.Double(800,800),null);
+//		System.out.println("\t"+p.getX()+" "+p.getY());
+//		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
 	}
 
 	private AffineTransform getCurrentTransform() {
