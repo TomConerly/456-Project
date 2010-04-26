@@ -49,8 +49,8 @@ public class Input extends PApplet{
 	boolean drawMedian = true;
 	Algo alg;
 
-	int[][] DEBUGR = {{418,185},{138,440},{297,681},{628,525},{358,352},};
-	int[][] DEBUGB = {{213,208},{576,306},{352,462},{158,336},{537,626},};
+	int[][] DEBUGR = null;//{{418,185},{138,440},{297,681},{628,525},{358,352},};
+	int[][] DEBUGB = null;//{{213,208},{576,306},{352,462},{158,336},{537,626},};
 
 	public enum Mode {INPUT,RUNNING,DONE};
 	Mode mode = Mode.INPUT;
