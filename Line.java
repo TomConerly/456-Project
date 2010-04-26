@@ -32,7 +32,7 @@ public class Line extends Line2D.Double{
 		double det = a1*b2-a2*b1;
 		if(abs(det) < eps){
 			// Attempt to find a point on both line segments so the interSeg code is simpler
-			System.out.println("PARALLEL! "+l.ptSegDist(a)+" "+l.ptSegDist(b)+" "+ptSegDist(l.a)+" "+ptSegDist(l.b));
+//			System.out.println("PARALLEL! "+l.ptSegDist(a)+" "+l.ptSegDist(b)+" "+ptSegDist(l.a)+" "+ptSegDist(l.b));
 			if(onLine(l.a)) return l.a;
 			if(onLine(l.b)) return l.b;
 			if(l.onSeg(a)) return a;

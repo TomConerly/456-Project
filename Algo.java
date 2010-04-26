@@ -7,6 +7,7 @@ public class Algo{
 	ArrayList<Point> PA,PB;
 	ArrayList<Line> LA,LB;	
 
+	double HUGE = 1000000.;
 	public Algo(ArrayList<Point> A, ArrayList<Point> B){
 		PA = A;
 		PB = B;
@@ -17,8 +18,8 @@ public class Algo{
 		for(int i = 0; i < B.size();i++)
 			LB.add(pointToLine(B.get(i)));
 
-		lx = (double)-10000;
-		hx = (double)10000;
+		lx = (double)-HUGE;
+		hx = (double)HUGE;
 
 		G1 = new ArrayList<Line>();
 		for(Line l:LA)
@@ -116,7 +117,7 @@ public class Algo{
 	
 	public void step(){
 
-		System.out.println("START STEP");
+		System.out.println("START STEP: "+mode.toString());
 		switch(mode){
 		case START1:
 			message = startMessage2;
@@ -215,13 +216,13 @@ public class Algo{
 			}else{
 				ArrayList<Line> newG1 = new ArrayList<Line>();
 				int below = 0;
-				for(Line t:trap)
-					System.out.println(t.valueAt(0)+" "+t.valueAt(1)+" "+t);
+//				for(Line t:trap)
+//					System.out.println(t.valueAt(0)+" "+t.valueAt(1)+" "+t);
 				for(Line l:G1){
 					boolean added = false;
 					for(Line t:trap){
 						Point p = l.interLine(t);
-						System.out.println(l+" "+t+" "+p);
+//						System.out.println(l+" "+t+" "+p);
 						if(p == null)
 							continue;						
 						if(t.onSeg(p)){
@@ -230,7 +231,7 @@ public class Algo{
 							break;
 						}
 					}
-					System.out.println(added);
+//					System.out.println(added);
 					if(!added){
 						Point p = l.interLine(new Line(new Point(lx,0),new Point(lx,1)));
 						if(p.y < trap[1].y1)
@@ -246,6 +247,7 @@ public class Algo{
 			break;			
 		case ITERDONE:
 			drawTrap = null;
+			trap = null;
 			message = iterDoneMessage;
 			mode = Mode.START2;
 			break;
@@ -258,7 +260,7 @@ public class Algo{
 			message = completeMessage;
 			break;
 		}
-		System.out.println("DONE STEP");
+//		System.out.println("DONE STEP");
 	}
 	public static double findKth(ArrayList<Line> L, int k, double x) {
 		ArrayList<Line> T = (ArrayList<Line>) L.clone();
