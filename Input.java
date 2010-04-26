@@ -1,4 +1,5 @@
 import processing.core.*;
+import static java.lang.Math.*;
 import controlP5.*;
 import java.util.*;
 import java.awt.geom.*;
@@ -24,10 +25,10 @@ public class Input extends PApplet{
 		blue = new ArrayList<Point>();
 		buttonsActive = true;
 
-		trans = new AffineTransform();
-		trans.scale(10./WIDTH, 10./HEIGHT);
-		trans.translate(-WIDTH/2., -HEIGHT/2.);
-
+		current = new AffineTransform();
+		current.preConcatenate(AffineTransform.getTranslateInstance(-WIDTH/2., -HEIGHT/2.));
+		current.preConcatenate(AffineTransform.getScaleInstance(10./WIDTH, 10./HEIGHT));
+		original = current;		
 
 		if(DEBUGR != null){
 			for(int[] q:DEBUGR)
@@ -48,16 +49,102 @@ public class Input extends PApplet{
 	boolean drawMedian = true;
 	Algo alg;
 
-	int[][] DEBUGR = null;//{{640,379},{1026,521},{788,797},{512,755},{382,516},{705,375},{671,663},{368,674},{648,884},{977,569},{673,415},{547,370},};
-	int[][] DEBUGB = null;//{{635,210},{319,405},{462,659},{731,738},{539,498},{406,481},{667,480},{244,362},{619,474},{485,636},{850,779},{1111,572},{811,410},{555,425},{361,627},};
+	int[][] DEBUGR = {{418,185},{138,440},{297,681},{628,525},{358,352},};
+	int[][] DEBUGB = {{213,208},{576,306},{352,462},{158,336},{537,626},};
 
 	public enum Mode {INPUT,RUNNING,DONE};
 	Mode mode = Mode.INPUT;
 
-	AffineTransform trans;
+	AffineTransform original;
+	AffineTransform current;
+	AffineTransform next;
+	AffineTransform first;
+	long startTime;
+	long totalTime = 1000000000L;
+	
 
+
+	public void scale(){
+		
+		if(alg == null)
+			return;
+		System.out.println("SCALING!");
+		double lx = Double.MAX_VALUE;
+		double hx = Double.MIN_VALUE;
+		double ly = Double.MAX_VALUE;
+		double hy = Double.MIN_VALUE;
+
+		ArrayList<Line> allLines = new ArrayList<Line>();
+		allLines.addAll(alg.G1);
+		allLines.addAll(alg.G2);
+		for(Line a:allLines){
+			for(Line b:allLines){
+				if(a == b)
+					continue;
+				Point p = a.interLine(b);
+				if(p == null)
+					continue;
+				lx = Math.min(lx,p.x);
+				hx = Math.max(hx,p.x);
+				ly = Math.min(ly,p.y);
+				hy = Math.max(hy,p.y);
+			}
+		}
+		System.out.println(lx+" "+hx+" "+ly+" "+hy);
+		lx = Math.max(lx,alg.lx);
+		hx = Math.min(hx,alg.hx);
+		double dx = hx-lx;
+		lx -= dx/3;
+		hx += dx/3;
+		double dy = hy-ly;
+		ly -= dy/3;
+		hy += dy/3;
+		
+		System.out.println(lx+" "+hx+" "+ly+" "+hy);
+		AffineTransform update = new AffineTransform();
+		update.preConcatenate(AffineTransform.getScaleInstance((hx-lx)/WIDTH,(hy-ly)/HEIGHT));
+		update.preConcatenate(AffineTransform.getTranslateInstance(lx, ly));	
+		
+		Point2D p = getCurrentTransform().transform(new Point2D.Double(400,400),null);
+		System.out.println("\t"+p.getX()+" "+p.getY());
+		p = getCurrentTransform().transform(new Point2D.Double(0,0),null);
+		System.out.println("\t"+p.getX()+" "+p.getY());
+		p = getCurrentTransform().transform(new Point2D.Double(800,800),null);
+		System.out.println("\t"+p.getX()+" "+p.getY());
+		
+		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
+		
+		
+		current = getCurrentTransform();
+		if(next == null)
+			first = update;
+		next = update;
+		startTime = System.nanoTime();
+		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
+		p = getCurrentTransform().transform(new Point2D.Double(400,400),null);
+		System.out.println("\t"+p.getX()+" "+p.getY());
+		p = getCurrentTransform().transform(new Point2D.Double(0,0),null);
+		System.out.println("\t"+p.getX()+" "+p.getY());
+		p = getCurrentTransform().transform(new Point2D.Double(800,800),null);
+		System.out.println("\t"+p.getX()+" "+p.getY());
+		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
+	}
+
+	private AffineTransform getCurrentTransform() {
+		if(next == null)
+			return current;
+		return weightedAverage(current,next,Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
+	}
+	private AffineTransform weightedAverage(AffineTransform A, AffineTransform B, double w) {
+		double a = 1-w;
+		double b = w;
+		return new AffineTransform((a*A.getScaleX()+b*B.getScaleX()),0.0,0.0,(a*A.getScaleY()+b*B.getScaleY()),
+				(a*A.getTranslateX()+b*B.getTranslateX()),(a*A.getTranslateY()+b*B.getTranslateY()));
+	}
+
+	int frames = 0;
 	public void draw(){
-
+		clear();
 		if(mode == Mode.INPUT)
 		{
 			for(Point r:red)
@@ -110,7 +197,7 @@ public class Input extends PApplet{
 				stroke(61,191,0);
 				strokeWeight(6);
 				fill(61,191,0);
-				
+
 				Line top = new Line(inverseTransform(alg.drawTrap[0].a),inverseTransform(alg.drawTrap[0].b));
 				Line bot = new Line(inverseTransform(alg.drawTrap[1].a),inverseTransform(alg.drawTrap[1].b));
 				if(top.a.x < 0){
@@ -241,7 +328,6 @@ public class Input extends PApplet{
 				return;
 
 			System.out.println("("+mouseX+","+mouseY+")");
-
 			Point p = transform(new Point(mouseX,mouseY));
 			System.out.format("(%.3f,%.3f)\n",p.x,p.y);
 			if(drawingRed)
@@ -254,13 +340,13 @@ public class Input extends PApplet{
 		}
 	}
 	private Point transform(Point p) {
-		Point2D temp = trans.transform(p, null);
+		Point2D temp = getCurrentTransform().transform(p, null);
 		return new Point(temp.getX(),temp.getY());
 	}
 	private Point inverseTransform(Point p){
 		Point2D temp;
 		try {
-			temp = trans.inverseTransform(p, null);
+			temp = getCurrentTransform().inverseTransform(p, null);
 			return new Point(temp.getX(),temp.getY());
 		} catch (NoninvertibleTransformException e) {
 			e.printStackTrace();
@@ -312,6 +398,7 @@ public class Input extends PApplet{
 			System.out.println("}");
 			System.out.println("****************************************");
 		}else if(mode == Mode.RUNNING && !alg.done){
+			scale();
 			System.out.println("STEP");
 			clear();
 			try{
@@ -319,8 +406,13 @@ public class Input extends PApplet{
 			}catch(Exception e){
 				e.printStackTrace();
 			}
-
+			if(alg.mode == Algo.Mode.COMPLETE){
+				next = first;
+				current = getCurrentTransform();
+				startTime = System.nanoTime();
+			}
 		}else if(mode == Mode.RUNNING && alg.done){
+			scale();
 			System.out.println("DONE!");
 			mode = Mode.DONE;
 			buttonsActive = false;
@@ -328,7 +420,10 @@ public class Input extends PApplet{
 			start.update();
 			clear();
 			buttonsActive = true;
+			current = original;
+			next = null;
 		}
+		
 		System.out.println("RETURN START");
 	}
 	public void clear(){

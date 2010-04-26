@@ -16,6 +16,9 @@ public class Line extends Line2D.Double{
 	public boolean onSeg(Point p){
 		return this.ptSegDist(p) < eps;
 	}
+	public boolean onLine(Point p){
+		return this.ptLineDist(p) < eps;
+	}
 	//very numerically imprecise
 	public Point interLine(Line l){
 		double a1 = b.y-a.y;
@@ -27,13 +30,13 @@ public class Line extends Line2D.Double{
 		double c2 = a2*l.a.x+b2*l.a.y;
 		
 		double det = a1*b2-a2*b1;
-		if(abs(det) < 1e-9)
-		{
+		if(abs(det) < eps){
 			// Attempt to find a point on both line segments so the interSeg code is simpler
+			System.out.println("PARALLEL! "+l.ptSegDist(a)+" "+l.ptSegDist(b)+" "+ptSegDist(l.a)+" "+ptSegDist(l.b));
+			if(onLine(l.a)) return l.a;
+			if(onLine(l.b)) return l.b;
 			if(l.onSeg(a)) return a;
-			if(l.onSeg(b)) return b;
-			if(onSeg(l.a)) return l.a;
-			if(onSeg(l.b)) return l.b;
+			if(l.onSeg(b)) return b;			
 			return a;
 		}else{
 			return new Point((b2*c1 - b1*c2)/det,(a1*c2 - a2*c1)/det);
@@ -54,5 +57,8 @@ public class Line extends Line2D.Double{
 		if(p == null)
 			throw new RuntimeException();
 		return p.y;
+	}
+	public String toString(){
+		return "["+a+"=>"+b+"]";
 	}
 }

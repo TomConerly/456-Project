@@ -48,4 +48,7 @@ public class Point extends Point2D.Double{
 			return 0;
 		return (int)signum(dot);
 	}	
+	public String toString(){
+		return "("+x+","+y+")";
+	}
 }

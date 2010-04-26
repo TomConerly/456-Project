@@ -17,8 +17,8 @@ public class Algo{
 		for(int i = 0; i < B.size();i++)
 			LB.add(pointToLine(B.get(i)));
 
-		lx = (double)Integer.MIN_VALUE;
-		hx = (double)Integer.MAX_VALUE;
+		lx = (double)-10000;
+		hx = (double)10000;
 
 		G1 = new ArrayList<Line>();
 		for(Line l:LA)
@@ -40,7 +40,7 @@ public class Algo{
 	String startMessage2 = "Red and blue lines that are thin are lines that the algorithm has ruled out. The purple and yellow line are the median levels they correspond to points with half of the lines above and below. The vertical dark green lines indicates the interval we are searching.";
 	String startEndMessage = "There are very few lines left so use the brute force method to compute the answer.";
 	String startIterRed = "There are more red lines left than blue lines so we will operate on the red lines.";
-	String startIterBlue = "There are more red lines left than blue lines so we will operate on the blue lines.";
+	String startIterBlue = "There are more blue lines left than red lines so we will operate on the blue lines.";
 	String intervalMessage1 = "We want to shrink the x range but keep the property that our median levels intersect an odd number of times. We will repeatedly pick an intersection point and split based on that point.";
 	String intervalMessage2 = "More splitting! When we split we always pick the side where the median levels intersect an odd number of times.";
 	String intervalMessage3 = "We are done splitting. Now in this range we will construct a trapezoid.";
@@ -215,18 +215,22 @@ public class Algo{
 			}else{
 				ArrayList<Line> newG1 = new ArrayList<Line>();
 				int below = 0;
+				for(Line t:trap)
+					System.out.println(t.valueAt(0)+" "+t.valueAt(1)+" "+t);
 				for(Line l:G1){
 					boolean added = false;
 					for(Line t:trap){
 						Point p = l.interLine(t);
+						System.out.println(l+" "+t+" "+p);
 						if(p == null)
-							continue;
+							continue;						
 						if(t.onSeg(p)){
 							newG1.add(l);
 							added = true;
 							break;
 						}
 					}
+					System.out.println(added);
 					if(!added){
 						Point p = l.interLine(new Line(new Point(lx,0),new Point(lx,1)));
 						if(p.y < trap[1].y1)
