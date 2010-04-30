@@ -5,11 +5,11 @@ import java.util.*;
 import java.awt.geom.*;
 
 public class Input extends PApplet{
-	final int WIDTH =800,HEIGHT=800;
+	final int WIDTH =800,HEIGHT=700;
 	final int CONTROL = 75;
 	public void setup(){
 		//don't use variables for this of export fails
-		size(800,800);
+		size(WIDTH,HEIGHT);
 		background(255);
 		controlP5 = new ControlP5(this);
 		switchColor = controlP5.addButton("switchColor", 0, 95, 15, 65, 35);
@@ -189,16 +189,6 @@ public class Input extends PApplet{
 			for(Point b:blue)
 				drawPoint(b,BLUER,BLUEG,BLUEB,1);
 		}else if(mode == Mode.RUNNING){
-			if(drawMedian){
-				if(!alg.reversed){
-					drawMedian(alg.G1,alg.p1,MEDIANREDR,MEDIANREDG,MEDIANREDB);
-					drawMedian(alg.G2,alg.p2,MEDIANBLUER,MEDIANBLUEG,MEDIANBLUEB);
-				}else{
-					drawMedian(alg.G1,alg.p1,MEDIANBLUER,MEDIANBLUEG,MEDIANBLUEB);
-					drawMedian(alg.G2,alg.p2,MEDIANREDR,MEDIANREDG,MEDIANREDB);
-				}				
-			}
-
 			for(Line l:alg.LA){
 				int width = glowWidth((System.nanoTime()-l.remTime)/(double)totalTime);				
 				drawLine(l,REDR,REDG,REDB,width);
@@ -231,6 +221,19 @@ public class Input extends PApplet{
 				right = new Line(hx,0,hx,1);		
 			drawVertLine(right,XBOUNDARYR,XBOUNDARYG,XBOUNDARYB,XBOUNDARYWIDTH);
 
+			if(drawMedian){
+				if(!alg.reversed){
+					drawMedian(alg.G1,alg.p1,MEDIANREDR,MEDIANREDG,MEDIANREDB,MEDIANWIDTH);
+					drawMedian(alg.G2,alg.p2,MEDIANBLUER,MEDIANBLUEG,MEDIANBLUEB,MEDIANWIDTH);
+					drawMedian(alg.G1,alg.p1,REDR,REDG,REDB,LINEWIDTH);
+					drawMedian(alg.G2,alg.p2,BLUER,BLUEG,BLUEB,LINEWIDTH);
+				}else{
+					drawMedian(alg.G1,alg.p1,MEDIANBLUER,MEDIANBLUEG,MEDIANBLUEB,MEDIANWIDTH);
+					drawMedian(alg.G2,alg.p2,MEDIANREDR,MEDIANREDG,MEDIANREDB, MEDIANWIDTH);
+					drawMedian(alg.G1,alg.p1,BLUER,BLUEG,BLUEB,LINEWIDTH);
+					drawMedian(alg.G2,alg.p2,REDR,REDG,REDB,LINEWIDTH);
+				}				
+			}
 			
 			if(alg.drawTrap != null){
 				stroke(61,191,0);
@@ -294,7 +297,7 @@ public class Input extends PApplet{
 		}
 	}
 
-	private void drawMedian(ArrayList<Line> L, int level,int r, int g, int b) {
+	private void drawMedian(ArrayList<Line> L, int level,int r, int g, int b,int width) {
 		if(L.size() == 0)
 			return;
 		TreeSet<Double> X = new TreeSet<Double>();
@@ -310,8 +313,8 @@ public class Input extends PApplet{
 		double prevx = Double.NaN;
 		double prevy = 0;
 		for(double x:X){
-			if(!Double.isNaN(prevx)){
-				drawLineSegment(new Line(prevx,prevy,x,Algo.findKth(L,level,x)),r,g,b,MEDIANWIDTH);
+			if(!Double.isNaN(prevx)){				
+				drawLineSegment(new Line(prevx,prevy,x,Algo.findKth(L,level,x)),r,g,b,width);
 			}
 			prevx = x;
 			prevy = Algo.findKth(L, level, x);
