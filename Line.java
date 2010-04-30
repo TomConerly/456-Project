@@ -5,6 +5,7 @@ import java.awt.geom.Line2D;
 public class Line extends Line2D.Double{
 	public Point a,b;
 	static double eps = 1e-6;
+	long remTime;
 	public Line(Point a, Point b){
 		super(a,b);
 		this.a = a;

@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class Algo{
 	ArrayList<Point> PA,PB;
-	ArrayList<Line> LA,LB;	
+	ArrayList<Line> LA,LB;
 
 	double HUGE = 1000000.;
 	public Algo(ArrayList<Point> A, ArrayList<Point> B){
@@ -38,19 +38,21 @@ public class Algo{
 		message = startMessage1;
 	}
 	String startMessage1 = "First switch to the dual problem so points become lines. Now we are searching for a point which has half of the lines of each set above it. We can prove that such a point will always exist at the intersection of two lines (but it might also exist elsewhere).";
-	String startMessage2 = "Red and blue lines that are thin are lines that the algorithm has ruled out. The purple and yellow line are the median levels they correspond to points with half of the lines above and below. The vertical dark green lines indicates the interval we are searching.";
+	String startMessage2 = "Red and blue lines that are thin are lines that the algorithm has ruled out. The dark red and dark blue lines are the median levels they correspond to points with half of the lines above and below. The vertical dark green lines indicates the interval we are searching.";
 	String startEndMessage = "There are very few lines left so use the brute force method to compute the answer.";
 	String startIterRed = "There are more red lines left than blue lines so we will operate on the red lines.";
 	String startIterBlue = "There are more blue lines left than red lines so we will operate on the blue lines.";
 	String intervalMessage1 = "We want to shrink the x range but keep the property that our median levels intersect an odd number of times. We will repeatedly pick an intersection point and split based on that point.";
-	String intervalMessage2 = "More splitting! When we split we always pick the side where the median levels intersect an odd number of times.";
+	String intervalMessage2 = "When we split we always pick the side where the median levels intersect an odd number of times.";
 	String intervalMessage3 = "We are done splitting. Now in this range we will construct a trapezoid.";
 	String trapezoidMessage1 = "The trapezoid is constructed by picking the points on each side of the interval that are one eigth of lines above or below the median level.";
 	String trapezoidMessage2 = "Now remove all of the lines entirely above or below the trapezoid. We are gaurenteed to remove at least half of the lines of the color we are working on.";
-	String iterDoneMessage = "We are now done with one iteration. Click step to see the next iteration in detail or hit skip to do the next iteration in one step.";
+	String iterDoneMessage = "We are now done with one iteration.";
 	String endMessage = "The black point is the point with half of the lines above and below it.";
 	String completeMessage = "Now we go back to the primal. The line is the dual of the point we found. As you can see half of the points are above and below the line.";
 
+	public Point splitPoint = null;
+	
 	public static Line pointToLine(Point p){
 		return new Line(new Point(0,-p.y),new Point(1,2*p.x-p.y));
 	}
@@ -144,11 +146,8 @@ public class Algo{
 			}
 			break;
 		case INTERVALS:
-			if(times == 3){
-				mode = Mode.TRAPEZOID;
-
-			}
 			if(times == 0){
+				message = intervalMessage1;
 				boolean done = false;
 				int count = 0;
 
@@ -163,30 +162,34 @@ public class Algo{
 					if(inter == null)
 						continue;
 					if(lx < inter.x && inter.x < hx){
-						double yl1 = findKth(G1,p1,lx);
-						double yl2 = findKth(G2,p2,lx);
-						double ymid1 = findKth(G1,p1,inter.x);
-						double ymid2 = findKth(G2,p2,inter.x);
-
-						if((yl1 < yl2 && ymid1 > ymid2) || (yl1 > yl2 && ymid1 < ymid2))
-							hx = inter.x;
-						else
-							lx = inter.x;		
+						splitPoint = inter;
+						
 						done = true;
 					}
 				}
 				if(!done)
 					forceBrute = true;
 			}
-			times++;
-			if(times == 1)
-				message = intervalMessage1;
-			else if(times == 2)
+			else if(times == 1){
 				message = intervalMessage2;
-			else{
+				double yl1 = findKth(G1,p1,lx);
+				double yl2 = findKth(G2,p2,lx);
+				double ymid1 = findKth(G1,p1,splitPoint.x);
+				double ymid2 = findKth(G2,p2,splitPoint.x);
+
+				if((yl1 < yl2 && ymid1 > ymid2) || (yl1 > yl2 && ymid1 < ymid2))
+					hx = splitPoint.x;
+				else
+					lx = splitPoint.x;
+				
+			}
+			else if(times == 2){
 				message = intervalMessage3;
 				mode = Mode.TRAPEZOID;
+				splitPoint = null;
 			}
+			
+			times++;
 			System.out.format("lx=%.3f, hx = %.3f\n",lx,hx);
 			break;
 		case TRAPEZOID:
@@ -203,15 +206,7 @@ public class Algo{
 				Line right = 	new Line(new Point(hx,yr1),new Point(hx,yr2));
 
 				trap = new Line[]{top,bottom,left,right};
-			
-				
-				double lx1 = lx;
-				double hx1 = hx;
-				
-				Line top1 = 	new Line(new Point(lx1,yl2),new Point(hx1,yr2));
-				Line bottom1 = 	new Line(new Point(lx1,yl1),new Point(hx1,yr1));
-
-				drawTrap = new Line[]{top1,bottom1};
+				drawTrap = new Line[]{top,bottom};
 				System.out.println("TRAPEZOID: "+lx+" "+hx+" "+yl1+" "+yl2+" "+yr1+" "+yr2);
 			}else{
 				ArrayList<Line> newG1 = new ArrayList<Line>();
@@ -233,6 +228,7 @@ public class Algo{
 					}
 //					System.out.println(added);
 					if(!added){
+						l.remTime = System.nanoTime();
 						Point p = l.interLine(new Line(new Point(lx,0),new Point(lx,1)));
 						if(p.y < trap[1].y1)
 							below++;
@@ -264,12 +260,8 @@ public class Algo{
 	}
 	public static double findKth(ArrayList<Line> L, int k, double x) {
 		ArrayList<Line> T = (ArrayList<Line>) L.clone();
-		if(x == Double.NEGATIVE_INFINITY)
-			x = Long.MIN_VALUE;
-		if(x == Double.POSITIVE_INFINITY)
-			x = Long.MAX_VALUE;
 		Collections.sort(T,new SelectionComparator(x));
-		return T.get(k).interLine(new Line(new Point(x,0),new Point(x,1))).y;
+		return T.get(k).valueAt(x);
 	}
 
 	private static class SelectionComparator implements Comparator<Line>{
