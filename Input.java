@@ -21,6 +21,12 @@ public class Input extends PApplet{
 		start.setColorActive(0xffB84860);
 		start.setColorBackground(0xff780821);
 		start.update();
+		
+		defaultPoints = controlP5.addButton("defaultPoints", 0, WIDTH-100, 15, 75, 35);
+		defaultPoints.setColorActive(0xffB84860);
+		defaultPoints.setColorBackground(0xff780821);
+		defaultPoints.update();
+		
 		red = new ArrayList<Point>();
 		blue = new ArrayList<Point>();
 		buttonsActive = true;
@@ -30,14 +36,6 @@ public class Input extends PApplet{
 		current.preConcatenate(AffineTransform.getScaleInstance(10./WIDTH, 10./HEIGHT));
 		original = current;		
 
-		if(DEBUGR != null){
-			for(int[] q:DEBUGR)
-				red.add(transform(new Point(q[0],q[1])));
-		}
-		if(DEBUGB != null){
-			for(int[] q:DEBUGB)
-				blue.add(transform(new Point(q[0],q[1])));
-		}
 		font = createFont("Times New Roman",16);
 	}
 	boolean buttonsActive = false;
@@ -46,11 +44,12 @@ public class Input extends PApplet{
 	ControlP5 controlP5;
 	Button switchColor;
 	Button start;
+	Button defaultPoints;
 	boolean drawMedian = true;
 	Algo alg;
 
-	int[][] DEBUGR = null;//{{475,218},{469,625},{296,534},{338,399},{454,448},{682,383},};
-	int[][] DEBUGB = null;//{{408,448},{495,348},{290,276},{171,455},{571,513},};
+	int[][] DEBUGR = {{479,217},{103,331},{239,617},{373,679},{732,399},{657,332},{300,406},{382,581},{588,609},};
+	int[][] DEBUGB = {{431,204},{152,258},{63,499},{115,571},{556,406},{711,463},{582,647},{294,487},};
 
 	public enum Mode {INPUT,RUNNING,DONE};
 	Mode mode = Mode.INPUT;
@@ -61,11 +60,11 @@ public class Input extends PApplet{
 	AffineTransform first;
 	long startTime;
 	long totalTime = 1000000000L;
+	long zoomTime = 1000000000L;
 
 
 
 	public void scale(){
-
 		if(alg == null)
 			return;
 //		System.out.println("SCALING!");
@@ -92,8 +91,8 @@ public class Input extends PApplet{
 				}
 			}
 		}
-		if(alg.trap != null){
-			for(Line l:alg.trap){
+		if(alg.drawTrap != null){
+			for(Line l:alg.drawTrap){
 				if(l.a.x != -alg.HUGE && l.a.x != alg.HUGE){
 					lx = Math.min(lx,l.a.x);
 					hx = Math.max(hx,l.a.x);
@@ -108,7 +107,7 @@ public class Input extends PApplet{
 				}
 			}
 		}
-//		System.out.println(lx+" "+hx+" "+ly+" "+hy);
+		System.out.println(lx+" "+hx+" "+ly+" "+hy);
 		lx = Math.max(lx,alg.lx);
 		hx = Math.min(hx,alg.hx);
 		double dx = hx-lx;
@@ -118,40 +117,22 @@ public class Input extends PApplet{
 		ly -= dy/3;
 		hy += dy/3;
 
-//		System.out.println(lx+" "+hx+" "+ly+" "+hy);
 		AffineTransform update = new AffineTransform();
 		update.preConcatenate(AffineTransform.getScaleInstance((hx-lx)/WIDTH,(hy-ly)/HEIGHT));
 		update.preConcatenate(AffineTransform.getTranslateInstance(lx, ly));	
-
-//		Point2D p = getCurrentTransform().transform(new Point2D.Double(400,400),null);
-//		System.out.println("\t"+p.getX()+" "+p.getY());
-//		p = getCurrentTransform().transform(new Point2D.Double(0,0),null);
-//		System.out.println("\t"+p.getX()+" "+p.getY());
-//		p = getCurrentTransform().transform(new Point2D.Double(800,800),null);
-//		System.out.println("\t"+p.getX()+" "+p.getY());
-//
-//		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
-
 
 		current = getCurrentTransform();
 		if(next == null)
 			first = update;
 		next = update;
 		startTime = System.nanoTime();
-//		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
-//		p = getCurrentTransform().transform(new Point2D.Double(400,400),null);
-//		System.out.println("\t"+p.getX()+" "+p.getY());
-//		p = getCurrentTransform().transform(new Point2D.Double(0,0),null);
-//		System.out.println("\t"+p.getX()+" "+p.getY());
-//		p = getCurrentTransform().transform(new Point2D.Double(800,800),null);
-//		System.out.println("\t"+p.getX()+" "+p.getY());
-//		System.out.println(Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
+		zoomTime = totalTime;
 	}
 
 	private AffineTransform getCurrentTransform() {
 		if(next == null)
 			return current;
-		return weightedAverage(current,next,Math.min(1,(System.nanoTime()-startTime)/(double)totalTime));
+		return weightedAverage(current,next,Math.min(1,(System.nanoTime()-startTime)/(double)zoomTime));
 	}
 	private AffineTransform weightedAverage(AffineTransform A, AffineTransform B, double w) {
 		double a = 1-w;
@@ -159,61 +140,101 @@ public class Input extends PApplet{
 		return new AffineTransform((a*A.getScaleX()+b*B.getScaleX()),0.0,0.0,(a*A.getScaleY()+b*B.getScaleY()),
 				(a*A.getTranslateX()+b*B.getTranslateX()),(a*A.getTranslateY()+b*B.getTranslateY()));
 	}
-
+	final int DEADLINEWIDTH=1;
+	final int LINEWIDTH=3;
+	final int MEDIANWIDTH = 8;
+	final int MEDIANREDR = 166;
+	final int MEDIANREDG = 13;
+	final int MEDIANREDB = 46;
+	final int MEDIANBLUER = 23;
+	final int MEDIANBLUEG = 43;
+	final int MEDIANBLUEB = 133;
+	
+	final int REDR = 255;
+	final int REDG = 54;
+	final int REDB = 64;
+	final int BLUER = 43;
+	final int BLUEG = 82;
+	final int BLUEB = 255;
+	
+	final int XBOUNDARYWIDTH = 5;
+	final int XBOUNDARYR = 4;
+	final int XBOUNDARYG = 89;
+	final int XBOUNDARYB = 12;
+	
+	final double GLOWTIME = 0.45;
+	final int GLOWSIZE = 10;
+	
 	int frames = 0;
+	public int glowWidth(double time){
+		int width;
+		if(time < GLOWTIME)
+			width = LINEWIDTH + (int)(time/(GLOWTIME/GLOWSIZE));
+		else
+			width = LINEWIDTH + (int)(GLOWSIZE) - (int)((time-GLOWTIME)/(GLOWTIME/GLOWSIZE));
+		width = max(width,DEADLINEWIDTH);
+		return width;
+	}
 	public void draw(){
 		clear();
+		if(zoomTime == totalTime*25 && System.nanoTime() - startTime > totalTime*5){
+			current = getCurrentTransform();
+			startTime = System.nanoTime();
+			zoomTime = totalTime*1;
+		}
 		if(mode == Mode.INPUT)
 		{
 			for(Point r:red)
-				drawPoint(r,255,0,0);		
+				drawPoint(r,REDR,REDG,REDB,1);
 			for(Point b:blue)
-				drawPoint(b,0,0,255);
+				drawPoint(b,BLUER,BLUEG,BLUEB,1);
 		}else if(mode == Mode.RUNNING){
-			for(Line l:alg.LA)
-				drawLine(l,255,0,0,1);
-			for(Line l:alg.LB)
-				drawLine(l,0,0,255,1);
+			if(drawMedian){
+				if(!alg.reversed){
+					drawMedian(alg.G1,alg.p1,MEDIANREDR,MEDIANREDG,MEDIANREDB);
+					drawMedian(alg.G2,alg.p2,MEDIANBLUER,MEDIANBLUEG,MEDIANBLUEB);
+				}else{
+					drawMedian(alg.G1,alg.p1,MEDIANBLUER,MEDIANBLUEG,MEDIANBLUEB);
+					drawMedian(alg.G2,alg.p2,MEDIANREDR,MEDIANREDG,MEDIANREDB);
+				}				
+			}
+
+			for(Line l:alg.LA){
+				int width = glowWidth((System.nanoTime()-l.remTime)/(double)totalTime);				
+				drawLine(l,REDR,REDG,REDB,width);
+			}
+			for(Line l:alg.LB){
+				int width = glowWidth((System.nanoTime()-l.remTime)/(double)totalTime);	
+				drawLine(l,BLUER,BLUEG,BLUEB,width);
+			}
 			for(Line l:alg.G1)
-				drawLine(l,alg.reversed?0:255,0,alg.reversed?255:0,3);
+				drawLine(l,alg.reversed?BLUER:REDR,alg.reversed?BLUEG:REDG,alg.reversed?BLUEB:REDB,LINEWIDTH);
 			for(Line l:alg.G2)
-				drawLine(l,alg.reversed?255:0,0,alg.reversed?0:255,3);
+				drawLine(l,alg.reversed?REDR:BLUER,alg.reversed?REDG:BLUEG,alg.reversed?REDB:BLUEB,LINEWIDTH);
 			double lx = alg.lx;
 			double hx = alg.hx;
 			Point pleft = new Point(lx,0);
 			Point pleftT = inverseTransform(pleft);
 			Line left;
 			if(pleftT.x < 0)
-				left = new Line(transform(new Point(3,0)),transform(new Point(3,1)));
+				left = new Line(transform(new Point(4,0)),transform(new Point(4,1)));
 			else
 				left = new Line(lx,0,lx,1);
-			drawVertLine(left,4,89,12,4);
+			drawVertLine(left,XBOUNDARYR,XBOUNDARYG,XBOUNDARYB,XBOUNDARYWIDTH);
 
 			Point pright = new Point(hx,0);
 			Point prightT = inverseTransform(pright);
 			Line right;
 			if(prightT.x >= WIDTH)
-				right = new Line(transform(new Point(WIDTH-2,0)),transform(new Point(WIDTH-2,1)));
+				right = new Line(transform(new Point(WIDTH-4,0)),transform(new Point(WIDTH-4,1)));
 			else
 				right = new Line(hx,0,hx,1);		
-			drawVertLine(right,4,89,12,4);
+			drawVertLine(right,XBOUNDARYR,XBOUNDARYG,XBOUNDARYB,XBOUNDARYWIDTH);
 
-			if(drawMedian){
-				if(!alg.reversed){
-					drawMedian(alg.G1,alg.p1,252,188,104);
-					drawMedian(alg.G2,alg.p2,169,62,250);
-				}else{
-					drawMedian(alg.G1,alg.p1,169,62,250);
-					drawMedian(alg.G2,alg.p2,252,188,104);
-				}				
-			}
-
-			if(alg.done)
-				drawPoint(alg.ans,0,0,0);		
-
+			
 			if(alg.drawTrap != null){
 				stroke(61,191,0);
-				strokeWeight(6);
+				strokeWeight(5);
 				fill(61,191,0);
 
 				Line top = new Line(inverseTransform(alg.drawTrap[0].a),inverseTransform(alg.drawTrap[0].b));
@@ -239,12 +260,17 @@ public class Input extends PApplet{
 				line((int)bot.a.x,(int)bot.a.y,(int)top.a.x,(int)top.a.y);
 				line((int)top.b.x,(int)top.b.y,(int)bot.b.x,(int)bot.b.y);
 			}
+			if(alg.splitPoint != null){
+				drawPoint(alg.splitPoint,0,0,0,3);
+			}
+			if(alg.done)
+				drawPoint(alg.ans,0,0,0,3);		
 
 		}else{
 			for(Point r:red)
-				drawPoint(r,255,0,0);		
+				drawPoint(r,255,0,0,1);		
 			for(Point b:blue)
-				drawPoint(b,0,0,255);
+				drawPoint(b,0,0,255,1);
 			Line ans = Algo.pointToLine(alg.ans);
 			drawLine(ans,0,0,0,5);
 		}
@@ -259,8 +285,12 @@ public class Input extends PApplet{
 		fill(0,0,0);
 		line(0,CONTROL,WIDTH,CONTROL);
 
-		if(alg != null){
+		if(alg != null && mode != Mode.DONE){
 			drawText(alg.message,0,0,0,200,5);
+		}else if(mode == Mode.DONE){
+			drawText("Going back to the original points we get the ham sandwich cut.",0,0,0,200,5);
+		}else if(mode == Mode.INPUT){
+			drawText("Click to create points.",0,0,0,200,5);
 		}
 	}
 
@@ -281,7 +311,7 @@ public class Input extends PApplet{
 		double prevy = 0;
 		for(double x:X){
 			if(!Double.isNaN(prevx)){
-				drawLineSegment(new Line(prevx,prevy,x,Algo.findKth(L,level,x)),r,g,b,5);
+				drawLineSegment(new Line(prevx,prevy,x,Algo.findKth(L,level,x)),r,g,b,MEDIANWIDTH);
 			}
 			prevx = x;
 			prevy = Algo.findKth(L, level, x);
@@ -322,10 +352,10 @@ public class Input extends PApplet{
 		line((int)laT.x,(int)laT.y,(int)lbT.x,(int)lbT.y);
 
 	}
-	public void drawPoint(Point p, int r, int g, int b){
+	public void drawPoint(Point p, int r, int g, int b, int weight){
 		Point pT = inverseTransform(p);
 		stroke(r,g,b);
-		strokeWeight(1);
+		strokeWeight(weight);
 		fill(r,g,b);
 		ellipseMode(CENTER);
 		ellipse((int)pT.x,(int)pT.y,10,10);
@@ -342,6 +372,8 @@ public class Input extends PApplet{
 			if(switchColor.isInside())
 				return;
 			if(start.isInside())
+				return;
+			if(defaultPoints.isInside())
 				return;
 			if(mouseY <= CONTROL)
 				return;
@@ -371,6 +403,26 @@ public class Input extends PApplet{
 			e.printStackTrace();
 		}
 		return null;
+	}
+	public void defaultPoints(int value){
+		if(!buttonsActive)
+			return;
+		System.out.println("DEFAULT");
+		if(DEBUGR != null){
+			for(int[] q:DEBUGR)
+				red.add(transform(new Point(q[0],q[1])));
+			DEBUGR = null;
+		}
+		if(DEBUGB != null){
+			for(int[] q:DEBUGB)
+				blue.add(transform(new Point(q[0],q[1])));
+			DEBUGB = null;
+		}
+		buttonsActive = false;
+		defaultPoints.setVisible(false);
+		defaultPoints.update();
+		clear();
+		buttonsActive = true;
 	}
 	public void switchColor(int value){
 		if(!buttonsActive)
@@ -417,7 +469,7 @@ public class Input extends PApplet{
 			System.out.println("}");
 			System.out.println("****************************************");
 		}else if(mode == Mode.RUNNING && !alg.done){
-			scale();
+			
 			System.out.println("STEP");
 			clear();
 			try{
@@ -426,12 +478,13 @@ public class Input extends PApplet{
 				e.printStackTrace();
 			}
 			if(alg.mode == Algo.Mode.COMPLETE){
-				next = first;
 				current = getCurrentTransform();
+				next = first;
 				startTime = System.nanoTime();
-			}
-		}else if(mode == Mode.RUNNING && alg.done){
-			scale();
+				zoomTime = totalTime*25;
+			}else
+				scale();
+		}else if(mode == Mode.RUNNING && alg.done){			
 			System.out.println("DONE!");
 			mode = Mode.DONE;
 			buttonsActive = false;
@@ -440,7 +493,7 @@ public class Input extends PApplet{
 			clear();
 			buttonsActive = true;
 			current = original;
-			next = null;
+			next = null;	
 		}
 
 		System.out.println("RETURN START");
